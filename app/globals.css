@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ivory: #FAF8F4;
+  --cream: #F5F2EC;
+  --navy: #0B1A2E;
+  --cobalt: #2D6BE4;
+  --gold: #C9A84C;
+  --platinum: #E8E4DC;
+  --charcoal: #2C2C2C;
+  --white: #FFFFFF;
+  --muted: #6B7280;
+}
+
+@layer base {
+  body {
+    @apply font-body;
+    background-color: var(--ivory);
+    color: var(--charcoal);
+  }
+}
+
+
+/* Nav Link Hover Effect */
+.nav-link-hover {
+  position: relative;
+}
+.nav-link-hover::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+.nav-link-hover:hover::after,
+.nav-link-hover.active::after {
+  transform: scaleX(1);
+}
+
+/* Luxury Button Hover */
+.btn-luxury {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  border: 1px solid var(--navy);
+  border-radius: 2px !important;
+  color: var(--navy);
+  background: var(--white);
+  transition: color 0.3s ease-out, border-color 0.3s ease-out, background-color 0.3s ease-out;
+}
+.btn-luxury::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--navy);
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease-out;
+}
+.btn-luxury:hover {
+  color: var(--white) !important;
+  border-color: var(--navy);
+}
+.btn-luxury:hover::before {
+  transform: scaleX(1);
+}
+
+.btn-luxury.btn-filled {
+  color: var(--white);
+  background: var(--navy);
+  border: 1px solid var(--gold);
+}
+.btn-luxury.btn-filled::before {
+  background-image: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.4), transparent);
+  background-color: transparent;
+  width: 50%;
+  transform: translateX(-150%) skewX(-15deg);
+  transition: transform 0.6s ease-out;
+}
+.btn-luxury.btn-filled:hover {
+  background: var(--navy);
+  border-color: var(--gold);
+}
+.btn-luxury.btn-filled:hover::before {
+  transform: translateX(250%) skewX(-15deg);
+}
+
+/* Horizontal Line Scroll Animation */
+.gold-line {
+  height: 1px;
+  background-color: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Hide scrollbar for carousel */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animated floating chess pieces */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+  50% { transform: translateY(-30px) rotate(5deg); opacity: 0.3; }
+  100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+}
+
+.floating-shape {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* Card hover lift effect */
+.card-hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(11,26,46,0.12);
+}
+
+* {
+  cursor: none !important;
+}
