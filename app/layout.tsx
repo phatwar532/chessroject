@@ -4,8 +4,7 @@ import { Bodoni_Moda, Cormorant_Garamond, Playfair_Display, Raleway, EB_Garamond
 import './globals.css';
 import { Navbar } from '@/components/shared/navbar';
 import { Footer } from '@/components/shared/footer';
-import { CustomCursor } from '@/components/shared/cursor';
-import { PageLoadAnimation } from '@/components/shared/animations';
+import { ScrollProgress } from '@/components/shared/scroll-progress';
 
 const bodoni = Bodoni_Moda({ subsets: ['latin'], variable: '--font-bodoni', adjustFontFallback: false });
 const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700'], style: ['normal', 'italic'], variable: '--font-cormorant', adjustFontFallback: false });
@@ -27,14 +26,22 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${bodoni.variable} ${cormorant.variable} ${playfair.variable} ${raleway.variable} ${ebGaramond.variable} ${dmSans.variable} font-body bg-background text-text min-h-screen flex flex-col`}>
-        <CustomCursor />
-        <PageLoadAnimation>
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </PageLoadAnimation>
+        {/* Global Film Grain */}
+        <div className="pointer-events-none fixed inset-0 z-[999] h-[100vh] w-[100vw] opacity-[0.04] mix-blend-overlay">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <filter id="noiseFilter">
+              <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
+            </filter>
+            <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+          </svg>
+        </div>
+
+        <ScrollProgress />
+        <Navbar />
+        <main className="flex-1">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

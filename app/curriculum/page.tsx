@@ -1,136 +1,77 @@
 "use client";
-
-import { useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
-import { Button } from "@/components/ui/button";
+import React from "react";
 import Link from "next/link";
-import { MoveRight } from "lucide-react";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
-}
 
 export default function CurriculumPage() {
-  const container = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    const luxuryEase = "cubic-bezier(0.76, 0, 0.24, 1)";
-    
-    gsap.fromTo(".page-title", 
-      { y: 60, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.5, ease: luxuryEase, delay: 1.4 }
-    );
-
-    const fadeUpElements = gsap.utils.toArray<HTMLElement>(".fade-up");
-    fadeUpElements.forEach((el) => {
-      gsap.fromTo(el, 
-        { y: 80, opacity: 0 },
-        {
-          scrollTrigger: { trigger: el, start: "top 85%" },
-          y: 0, opacity: 1, duration: 1.5, ease: luxuryEase,
-        }
-      );
-    });
-  }, { scope: container });
-
-  const curriculum = [
-    {
-      label: "LEVEL 01 · BEGINNER",
-      level: "Beginner Level",
-      desc: "We cover the basics from how pieces move to fundamental openings.",
-      specs: [
-        { label: "Frequency", val: "2 sessions / week" },
-        { label: "Duration", val: "45 mins" },
-        { label: "Batch Size", val: "3–5 kids" },
-        { label: "Bonus", val: "Practice tournaments" }
-      ],
-      modules: ["Board Setup", "Piece Movements", "Basic Checkmates", "Opening Principles"]
-    },
-    {
-      label: "LEVEL 02 · INTERMEDIATE",
-      level: "Intermediate Level",
-      desc: "Immersing into the mechanics of positional logic and tactics.",
-      specs: [
-        { label: "Frequency", val: "3 sessions / week" },
-        { label: "Duration", val: "45 mins" },
-        { label: "Batch Size", val: "3–5 kids" },
-        { label: "Bonus", val: "Practice tournaments" }
-      ],
-      modules: ["Tactics", "Middle-Game Strategy", "Endgame Techniques"]
-    },
-    {
-      label: "LEVEL 03 · ADVANCED",
-      level: "Advanced Level",
-      desc: "Professional training for competitive players with grandmaster-level deep dives.",
-      specs: [
-        { label: "Frequency", val: "3 sessions / week" },
-        { label: "Duration", val: "60 mins" },
-        { label: "Batch Size", val: "Up to 5 kids" },
-        { label: "Bonus", val: "Tournament preparation" }
-      ],
-      modules: ["Opening Preparation", "Advanced Calculation", "Prophylaxis", "Master Games Analysis"]
-    }
-  ];
-
   return (
-    <div className="flex flex-col min-h-screen bg-background" ref={container}>
+    <div className="flex flex-col min-h-screen relative overflow-hidden">
       
-      {/* Hero */}
-      <section className="relative h-[60vh] flex items-center justify-center border-b border-divider">
-        <h1 className="page-title opacity-0 text-text font-hero text-[60px] md:text-[100px] uppercase tracking-[0.1em] text-center px-4">The Curriculum</h1>
+      {/* BACKGROUND SVG */}
+      <svg viewBox="0 0 24 24" className="chess-engraving h-[100vh] w-[100vh] right-[10%] top-[5%] opacity-[0.05] z-0">
+        <path d="M12 2C11.5 2 11 2.5 11 3V5C11 5.5 11.5 6 12 6C12.5 6 13 5.5 13 5V3C13 2.5 12.5 2 12 2ZM9 6L8 8C7 10 7.5 13 12 15C16.5 13 17 10 16 8L15 6L14 7L12 5L10 7L9 6ZM8 16V18H16V16H8ZM6 19V22H18V19H6Z" />
+      </svg>
+
+      {/* HERO SECTION */}
+      <section className="relative flex flex-col items-center justify-center pt-[160px] pb-[80px] px-[24px] z-10 w-full text-center">
+        <h1 className="font-hero font-[600] text-[color:var(--text-1)] uppercase tracking-[0.1em] text-[clamp(2.5rem,6vw,4rem)]">
+          CURRICULUM
+        </h1>
       </section>
 
-      <section className="py-40">
-        <div className="container mx-auto px-4 max-w-7xl pb-32">
+      {/* TRACKS SECTION */}
+      <section className="pb-[120px] px-[24px] md:px-[48px] max-w-[1400px] mx-auto w-full relative z-10">
+        <div className="text-center mb-[64px]">
+          <span className="label">LEARNING TRACKS</span>
+          <h2 className="text-[clamp(2rem,4vw,3rem)] font-[500] text-[color:var(--text-1)] mb-12">Curriculum Tracks</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[32px]">
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
-            {curriculum.map((level, idx) => (
-              <div 
-                key={idx} 
-                className="fade-up relative p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-divider border-l-[4px] border-l-primary group hover:bg-[#111] transition-colors duration-[0.7s] ease-[cubic-bezier(0.76,0,0.24,1)] h-full flex flex-col"
-              >
-                <div className="flex-1">
-                  <span className="font-label text-primary text-[12px] uppercase tracking-[0.4em] mb-8 block">{level.label}</span>
-                  <h2 className="text-[48px] font-cormorant italic mb-6 text-primary">{level.level}</h2>
-                  <p className="font-quote text-[18px] text-text/80 mb-12 italic leading-[1.8]">{level.desc}</p>
-                  
-                  <div className="mb-16 space-y-6">
-                    <span className="font-nav text-[12px] uppercase tracking-[0.25em] text-primary/60 border-b border-divider pb-4 block w-full">Structure</span>
-                    <ul className="space-y-4">
-                      {level.specs.map((s, i) => (
-                        <li key={i} className="flex flex-col font-body">
-                          <span className="text-[#a3a3a3] text-[13px] uppercase tracking-widest">{s.label}</span>
-                          <span className="font-light text-text text-[15px] mt-1">{s.val}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="space-y-6">
-                    <span className="font-nav text-[12px] uppercase tracking-[0.25em] text-primary/60 border-b border-divider pb-4 block w-full">Modules</span>
-                    <ul className="space-y-4">
-                      {level.modules.map((mod, i) => (
-                        <li key={i} className="flex items-start text-[15px] font-body text-[#a3a3a3] font-light leading-[1.8]">
-                          <span className="w-[1px] h-3 bg-primary mt-2 mr-4 shrink-0" />
-                          <span>{mod}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="glass-card flex flex-col p-[32px]" style={{ borderLeft: "2px solid rgba(201,168,76,0.45)" }}>
+            <div className="inline-block rounded-full px-4 py-1 font-body text-[0.65rem] tracking-[0.2em] font-[600] uppercase mb-[24px] bg-[rgba(255,255,255,0.06)] text-[color:var(--text-1)] w-max">
+              BEGINNER
+            </div>
+            <h3 className="font-hero text-[1.4rem] font-[500] text-[color:var(--text-1)] mb-[24px]">Chess Foundations</h3>
+            <ul className="flex flex-col gap-[16px] text-left mb-[48px] flex-1">
+              {["Piece movement & values", "Basic checkmates (K+Q vs K, etc)", "Opening principles", "Tactical motifs (Pins, forks)", "Recording games (Notation)"].map((topic, j) => (
+                <li key={j} className="font-body text-[0.88rem] text-[color:var(--text-2)] flex items-start gap-3">
+                    <span className="text-[color:var(--gold)] text-[0.8rem] mt-1">✦</span> {topic}
+                </li>
+              ))}
+            </ul>
+            <Link href="/contact" className="btn-primary w-full text-center">ENROLL NOW</Link>
           </div>
 
-          <div className="mt-32 text-center fade-up">
-            <Link href="/contact">
-              <Button size="lg" className="btn-luxury btn-filled w-full sm:w-[500px] border-primary font-nav text-[12px] uppercase tracking-[0.25em] h-16">
-                 Review Process <MoveRight className="ml-4 w-4 h-4 opacity-50" />
-              </Button>
-            </Link>
+          <div className="glass-card flex flex-col p-[32px]" style={{ borderLeft: "2px solid rgba(201,168,76,0.45)" }}>
+            <div className="inline-block rounded-full px-4 py-1 font-body text-[0.65rem] tracking-[0.2em] font-[600] uppercase mb-[24px] bg-[rgba(255,255,255,0.06)] text-[color:var(--text-1)] w-max">
+              INTERMEDIATE
+            </div>
+            <h3 className="font-hero text-[1.4rem] font-[500] text-[color:var(--text-1)] mb-[24px]">Tactical Mastery</h3>
+            <ul className="flex flex-col gap-[16px] text-left mb-[48px] flex-1">
+              {["Advanced tactics & calculations", "Pawn structures", "Essential endgame strategy", "Positional evaluation", "Building opening repertoires"].map((topic, j) => (
+                <li key={j} className="font-body text-[0.88rem] text-[color:var(--text-2)] flex items-start gap-3">
+                    <span className="text-[color:var(--gold)] text-[0.8rem] mt-1">✦</span> {topic}
+                </li>
+              ))}
+            </ul>
+            <Link href="/contact" className="btn-primary w-full text-center">ENROLL NOW</Link>
           </div>
+
+          <div className="glass-card flex flex-col p-[32px]" style={{ borderLeft: "2px solid rgba(201,168,76,0.45)" }}>
+            <div className="inline-block rounded-full px-4 py-1 font-body text-[0.65rem] tracking-[0.2em] font-[600] uppercase mb-[24px] bg-[rgba(201,168,76,0.15)] text-[color:var(--gold)] w-max">
+              ADVANCED
+            </div>
+            <h3 className="font-hero text-[1.4rem] font-[500] text-[color:var(--text-1)] mb-[24px]">Competitive Excellence</h3>
+            <ul className="flex flex-col gap-[16px] text-left mb-[48px] flex-1">
+              {["Complex endgame studies", "Deep preparation & novelties", "Psychology in competition", "Grandmaster game analysis", "Time management techniques"].map((topic, j) => (
+                <li key={j} className="font-body text-[0.88rem] text-[color:var(--text-2)] flex items-start gap-3">
+                    <span className="text-[color:var(--gold)] text-[0.8rem] mt-1">✦</span> {topic}
+                </li>
+              ))}
+            </ul>
+            <Link href="/contact" className="btn-primary w-full text-center">ENROLL NOW</Link>
+          </div>
+
         </div>
       </section>
 

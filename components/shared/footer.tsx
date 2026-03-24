@@ -1,88 +1,73 @@
 "use client";
+import React from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Instagram, Twitter, Facebook } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-navy px-[24px] md:px-[48px] pt-[80px] pb-[40px] relative overflow-hidden flex-shrink-0 w-full z-10">
-      <div 
-        className="absolute inset-0 pointer-events-none" 
-        style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
-        }}
-      />
-      <div className="w-full absolute top-0 left-0 h-[1px] bg-gold" />
-      
-      <div className="max-w-7xl mx-auto w-full relative z-10">
-        <div className="flex flex-col lg:flex-row justify-between gap-16 mb-16">
-          <div className="max-w-xs shrink-0 mx-auto text-center lg:mx-0 lg:text-left">
-            <Link href="/" className="inline-block mb-6">
-              <img src="/logo.png" alt="Chaturangveda Academy" className="w-[120px] h-auto object-contain mx-auto lg:mx-0" />
+    <footer className="w-full bg-[color:var(--navy)] pt-[80px] pb-[40px] px-[24px] md:px-[48px] mt-auto relative z-10 border-t border-[rgba(37,99,235,0.2)]">
+      <div className="max-w-[1400px] mx-auto">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[48px] mb-[64px]">
+          <div className="lg:col-span-1 flex flex-col items-start">
+            <Link href="/" className="mb-6 bg-white/5 p-4 rounded-xl backdrop-blur-md">
+              <img src="/logo.png" alt="Chaturangveda Academy" className="w-[150px] h-auto object-contain mix-blend-multiply" />
             </Link>
-            <p className="font-body text-ivory/60 text-[14px] leading-[1.8]">
+            <p className="font-body text-[0.95rem] text-blue-100/70 leading-[1.7] mb-4">
               Where Strategy Meets Excellence. Fostering a deep love for chess and nurturing intellectual growth globally.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8 flex-1 lg:pl-16">
-            <div className="flex flex-col text-center md:text-left">
-              <h4 className="font-nav text-gold text-[11px] uppercase tracking-[0.16em] mb-[20px]">About</h4>
-              <nav className="flex flex-col space-y-4 text-center md:text-left">
-                <Link href="/brand" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">Our Story</Link>
-                <Link href="/coaches" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">Coaches</Link>
-                <Link href="/faq" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">FAQ</Link>
-              </nav>
+          <div className="flex flex-col">
+            <h4 className="font-body text-[0.8rem] text-[color:var(--gold)] font-bold tracking-[0.1em] uppercase mb-[24px]">Quick Links</h4>
+            <div className="flex flex-col gap-[16px]">
+              <Link href="/services" className="font-body text-[0.95rem] text-white hover:text-[color:var(--gold)] transition-colors">Services</Link>
+              <Link href="/coaches" className="font-body text-[0.95rem] text-white hover:text-[color:var(--gold)] transition-colors">Coaches</Link>
+              <Link href="/blog" className="font-body text-[0.95rem] text-white hover:text-[color:var(--gold)] transition-colors">Blog</Link>
+              <Link href="/#faq" className="font-body text-[0.95rem] text-white hover:text-[color:var(--gold)] transition-colors">FAQ</Link>
             </div>
-            
-            <div className="flex flex-col text-center md:text-left">
-              <h4 className="font-nav text-gold text-[11px] uppercase tracking-[0.16em] mb-[20px]">Quick Links</h4>
-              <nav className="flex flex-col space-y-4">
-                <Link href="/services" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">Services</Link>
-                <Link href="/blog" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">Blog</Link>
-                <Link href="/privacy" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">Privacy Policy</Link>
-              </nav>
-            </div>
+          </div>
 
-            <div className="flex flex-col text-center md:text-left">
-              <h4 className="font-nav text-gold text-[11px] uppercase tracking-[0.16em] mb-[20px]">Courses</h4>
-              <nav className="flex flex-col space-y-4">
-                <Link href="/curriculum" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">Beginner</Link>
-                <Link href="/curriculum" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">Intermediate</Link>
-                <Link href="/curriculum" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">Advanced</Link>
-              </nav>
+          <div className="flex flex-col">
+            <h4 className="font-body text-[0.8rem] text-[color:var(--gold)] font-bold tracking-[0.1em] uppercase mb-[24px]">Courses</h4>
+            <div className="flex flex-col gap-[16px]">
+              <Link href="/#programs" className="font-body text-[0.95rem] text-white hover:text-[color:var(--gold)] transition-colors">Beginner</Link>
+              <Link href="/#programs" className="font-body text-[0.95rem] text-white hover:text-[color:var(--gold)] transition-colors">Intermediate</Link>
+              <Link href="/#programs" className="font-body text-[0.95rem] text-white hover:text-[color:var(--gold)] transition-colors">Advanced</Link>
             </div>
+          </div>
 
-            <div className="flex flex-col text-center md:text-left">
-              <h4 className="font-nav text-gold text-[11px] uppercase tracking-[0.16em] mb-[20px]">Contact</h4>
-              <nav className="flex flex-col space-y-4">
-                <a href="mailto:chaturangveda@gmail.com" className="font-body text-platinum text-[14px] font-[300] hover:text-white transition-colors duration-200">chaturangveda@gmail.com</a>
-                <span className="font-body text-platinum text-[14px] font-[300]">+91 7569194709</span>
-              </nav>
+          <div className="flex flex-col">
+            <h4 className="font-body text-[0.8rem] text-[color:var(--gold)] font-bold tracking-[0.1em] uppercase mb-[24px]">Contact</h4>
+            <div className="flex flex-col gap-[16px]">
+              <a href="mailto:chaturangveda@gmail.com" className="font-body text-[0.95rem] text-white hover:text-[color:var(--gold)] transition-colors">chaturangveda@gmail.com</a>
+              <span className="font-body text-[0.95rem] text-white">+91 75691 94709<br/>+91 89191 74512</span>
+              
+              <div className="flex gap-4 mt-2">
+                <a href="#" className="w-[40px] h-[40px] rounded-full bg-blue-900/40 flex items-center justify-center text-white hover:bg-[color:var(--primary-blue)] transition-all">
+                  <Instagram size={18} />
+                </a>
+                <a href="#" className="w-[40px] h-[40px] rounded-full bg-blue-900/40 flex items-center justify-center text-white hover:bg-[color:var(--primary-blue)] transition-all">
+                  <Twitter size={18} />
+                </a>
+                <a href="#" className="w-[40px] h-[40px] rounded-full bg-blue-900/40 flex items-center justify-center text-white hover:bg-[color:var(--primary-blue)] transition-all">
+                  <Facebook size={18} />
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="w-full h-[0.5px] bg-platinum mb-8" />
-        
-        <div className="flex flex-col items-center justify-center mb-8">
-          <div className="w-full h-[1px] bg-[#C9A84C] mb-8" />
-          <img src="/logo.png" alt="Chaturangveda Academy Logo" className="w-[80px] h-auto object-contain opacity-60" />
-        </div>
-
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="font-body text-platinum text-[12px] font-[300]">
-            &copy; {new Date().getFullYear()} Chaturangveda. All rights reserved.
+        <div className="border-t border-blue-900/50 pt-[32px] flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="font-body text-[0.9rem] text-blue-200/50">
+            &copy; 2025 Chaturangveda Academy. All rights reserved.
           </p>
-          <div className="flex items-center gap-3">
-            {[1, 2, 3].map((i) => (
-              <a key={i} href="#" className="w-8 h-8 rounded-full border border-platinum flex items-center justify-center text-platinum hover:text-gold hover:border-gold transition-colors duration-200">
-                <span className="sr-only">Social</span>
-                <span className="text-[10px] block font-nav">in</span>
-              </a>
-            ))}
+          <div className="flex gap-6">
+            <Link href="/privacy" className="font-body text-[0.85rem] text-blue-200/50 hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="font-body text-[0.85rem] text-blue-200/50 hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
+
       </div>
     </footer>
   );

@@ -1,68 +1,78 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const [hovering, setHovering] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+
+  // Smooth springs for the outer ring trailing
+  const springConfig = { damping: 25, stiffness: 300, mass: 0.5 };
+  const cursorXSpring = useSpring(cursorX, springConfig);
+  const cursorYSpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
-    const mouse = { x: 0, y: 0 };
-    const cursor = { x: 0, y: 0 };
+    // Only show on desktop environments
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    setIsVisible(true);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+    const moveCursor = (e: MouseEvent) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
     };
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName.toLowerCase() === 'button' || target.tagName.toLowerCase() === 'a' || target.closest('button') || target.closest('a')) {
-        setHovering(true);
+      if (
+        target.tagName.toLowerCase() === "button" ||
+        target.tagName.toLowerCase() === "a" ||
+        target.closest("button") ||
+        target.closest("a")
+      ) {
+        setIsHovered(true);
       } else {
-        setHovering(false);
+        setIsHovered(false);
       }
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", moveCursor);
     window.addEventListener("mouseover", handleMouseOver);
 
-    const lerp = (start: number, end: number, amt: number) => {
-      return (1 - amt) * start + amt * end;
-    };
-
-    let animationFrameId: number;
-
-    const render = () => {
-      cursor.x = lerp(cursor.x, mouse.x, 0.15); // Adjust for roughly 80ms perceptual lag
-      cursor.y = lerp(cursor.y, mouse.y, 0.15);
-
-      if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${cursor.x}px, ${cursor.y}px, 0) translate(-50%, -50%)`;
-      }
-
-      animationFrameId = requestAnimationFrame(render);
-    };
-    render();
-
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", moveCursor);
       window.removeEventListener("mouseover", handleMouseOver);
-      cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [cursorX, cursorY]);
+
+  if (!isVisible) return null;
 
   return (
-    <div
-      ref={cursorRef}
-      className={`fixed top-0 left-0 pointer-events-none z-[9999] rounded-full mix-blend-normal transition-all duration-200 ease-out flex items-center justify-center`}
-      style={{
-        width: hovering ? "28px" : "10px",
-        height: hovering ? "28px" : "10px",
-        backgroundColor: "var(--navy)",
-        border: "1px solid var(--gold)",
-        opacity: hovering ? 0.7 : 1,
-      }}
-    />
+    <div className="pointer-events-none fixed inset-0 z-[9999] hidden lg:block">
+      {/* 1. Precise Inner Dot */}
+      <motion.div
+        className="fixed top-0 left-0 w-3 h-3 bg-white rounded-full mix-blend-difference drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+        style={{ x: cursorX, y: cursorY, translateX: "-50%", translateY: "-50%" }}
+        animate={{ scale: isHovered ? 0 : 1, opacity: isHovered ? 0 : 1 }}
+        transition={{ duration: 0.15 }}
+      />
+      
+      {/* 2. Trailing Glass Ring / Magnetic Solid Pill */}
+      <motion.div
+        className="fixed top-0 left-0 mix-blend-difference border-[1px] border-white rounded-full flex items-center justify-center overflow-hidden"
+        style={{ x: cursorXSpring, y: cursorYSpring, translateX: "-50%", translateY: "-50%" }}
+        animate={{
+          width: isHovered ? 64 : 40,
+          height: isHovered ? 64 : 40,
+          backgroundColor: isHovered ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0)",
+          scale: isHovered ? 1 : 1,
+          borderColor: isHovered ? "rgba(255,255,255,0)" : "rgba(255,255,255,0.6)",
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      />
+    </div>
   );
 }

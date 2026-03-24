@@ -1,325 +1,619 @@
 "use client";
-
-import React, { useRef, useEffect, useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
-import { Accordion } from "@/components/ui/accordion";
 import Image from "next/image";
-import { CustomCursor } from "@/components/shared/cursor";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
+import { fadeUp, staggerContainer, scaleIn } from "@/lib/animations";
+import { MagneticButton } from "@/components/shared/magnetic-button";
+import { InfiniteMarquee } from "@/components/shared/marquee";
+import { TextRevealScroll } from "@/components/shared/text-reveal";
+import { 
+  ArrowRight, Shield, Globe, TrendingUp, Award, Users, CheckCircle, 
+  Phone, Mail, Clock, Send 
+} from "lucide-react";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
+/* PREMIUM ACCORDION COMPONENT */
+function AnimatedAccordion({ items }: { items: { question: string, answer: string }[] }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  return (
+    <div className="flex flex-col gap-5 max-w-[900px] mx-auto">
+      {items.map((item, i) => {
+        const isOpen = openIndex === i;
+        return (
+          <div key={i} className="bg-white/60 backdrop-blur-3xl rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white hover:border-[#1a3fa8]/30 transition-all duration-300 relative z-20">
+            <motion.button 
+              className="w-full flex justify-between items-center p-6 md:p-8 text-left outline-none group"
+              onClick={() => setOpenIndex(isOpen ? null : i)}
+            >
+              <span className="font-hero text-[1.2rem] md:text-[1.4rem] font-bold text-[#0f1e4a] group-hover:text-[#1a3fa8] transition-colors pr-6">
+                {item.question}
+              </span>
+              <motion.span 
+                animate={{ rotate: isOpen ? 45 : 0 }} 
+                className="w-12 h-12 rounded-full bg-[#1a3fa8]/10 text-[#1a3fa8] flex items-center justify-center flex-shrink-0 text-3xl font-light leading-none group-hover:bg-[#1a3fa8] group-hover:text-white transition-colors"
+               >
+                +
+              </motion.span>
+            </motion.button>
+            <AnimatePresence>
+              {isOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                  <p className="font-body text-[1.1rem] font-medium text-gray-600 pb-8 px-6 md:px-8 leading-[1.8]">
+                    {item.answer}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
-const AnimatedCounter = ({ end, suffix = "", duration = 2 }: { end: number, suffix?: string, duration?: number }) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
+const AnimatedHomeCard = ({ children, className }: any) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x, { stiffness: 400, damping: 25 });
+  const mouseYSpring = useSpring(y, { stiffness: 400, damping: 25 });
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["3deg", "-3deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-3deg", "3deg"]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        let startTime: number;
-        const animate = (timestamp: number) => {
-          if (!startTime) startTime = timestamp;
-          const progress = timestamp - startTime;
-          const current = Math.min(Math.floor((progress / (duration * 1000)) * end), end);
-          setCount(current);
-          if (current < end) {
-            requestAnimationFrame(animate);
-          }
-        };
-        requestAnimationFrame(animate);
-        observer.disconnect();
-      }
-    }, { threshold: 0.1 });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [end, duration]);
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseXPos = e.clientX - rect.left;
+    const mouseYPos = e.clientY - rect.top;
+    x.set(mouseXPos / width - 0.5);
+    y.set(mouseYPos / height - 0.5);
+    mouseX.set(mouseXPos);
+    mouseY.set(mouseYPos);
+  };
 
-  return <span ref={ref}>{count}{suffix}</span>;
+  const handleMouseLeave = () => {
+    x.set(0); y.set(0);
+  };
+
+  const spotlightBg = useMotionTemplate`radial-gradient(800px circle at ${mouseX}px ${mouseY}px, rgba(26,63,168,0.08), transparent 50%)`;
+
+  return (
+    <motion.div 
+      variants={{
+        hidden: { opacity: 0, y: 50, scale: 0.98 },
+        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+      }}
+      style={{ perspective: "2500px" }}
+      className={`relative h-full w-full group ${className || ""}`}
+    >
+      <motion.div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="flex flex-col h-full bg-white/60 backdrop-blur-3xl rounded-[32px] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.04)] transition-shadow duration-500 relative border border-white/80 group-hover:border-white group-hover:shadow-[0_40px_80px_rgba(26,63,168,0.12)] p-10 md:p-14"
+      >
+        <motion.div className="pointer-events-none absolute -inset-px transition opacity-0 group-hover:opacity-100 z-0 mix-blend-multiply" style={{ background: spotlightBg }} />
+        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-90 z-20" />
+        
+        <div className="relative z-20 h-full w-full flex flex-col" style={{ transformStyle: "preserve-3d" }}>
+          {children}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 };
 
 export default function HomePage() {
-  const container = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    const luxuryEase = "cubic-bezier(0.25, 0.46, 0.45, 0.94)";
-
-    // Hero Reveal
-    gsap.fromTo(".hero-word", 
-      { y: 24, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, stagger: 0.08, ease: luxuryEase, delay: 0.2 }
-    );
-    gsap.fromTo(".hero-sub", 
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, ease: luxuryEase, delay: 0.8, stagger: 0.1 }
-    );
-
-    // Fade Up Scroll
-    const fadeUpElements = gsap.utils.toArray<HTMLElement>(".fade-up");
-    fadeUpElements.forEach((el) => {
-      gsap.fromTo(el, 
-        { y: 28, opacity: 0 },
-        {
-          scrollTrigger: { trigger: el, start: "top 85%", once: true },
-          y: 0, opacity: 1, duration: 0.6, ease: luxuryEase,
-        }
-      );
-    });
-
-    const staggerGrids = gsap.utils.toArray<HTMLElement>(".stagger-grid");
-    staggerGrids.forEach((grid) => {
-      gsap.fromTo(grid.children, 
-        { y: 28, opacity: 0 },
-        {
-          scrollTrigger: { trigger: grid, start: "top 85%", once: true },
-          y: 0, opacity: 1, duration: 0.6, stagger: 0.09, ease: luxuryEase,
-        }
-      );
-    });
-  }, { scope: container });
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   const faqs = [
-    { question: "Why is Online Chess better?", answer: "Accessibility anytime anywhere, play against world opponents, analyze and track progress instantly." },
-    { question: "Why Chaturangveda for my kid?", answer: "Safety, affordable pricing, flexible schedules, progress tracking, age-appropriate structured curriculum." },
-    { question: "What is the role of parents?", answer: "Equal involvement ensures exponential growth, help child implement learnings and finish tasks." },
-    { question: "Does Chaturangveda have international students?", answer: "Yes, 200+ kids across 10 countries." },
+    { question: "Why Online Chess is better?", answer: "Kids can play anytime, anywhere, against opponents from all over the world. Play more games in less time, analyze instantly, and track progress." },
+    { question: "Why Chaturangveda for my kid?", answer: "Safety and security, affordable pricing, flexible schedules, and progress tracking for parents. Our curriculum is specifically designed for each age group with structured learning." },
+    { question: "What is the role of parents?", answer: "Parents must involve themselves equally to ensure exponential growth. Parents ensure the child implements what they learn and finishes tasks." },
+    { question: "Do you have international students?", answer: "Yes, 200+ kids across 10 countries." },
+    { question: "What is the right age to start?", answer: "5–15 years is ideal. Young kids adapt patterns and habits faster." },
+    { question: "Are coaches FIDE rated?", answer: "Yes, all coaches are FIDE rated and undergo 1 month of rigorous training. Many have 5+ years of experience." },
+    { question: "Is there a completion certificate?", answer: "Yes, kids earn a professional Chaturangveda level completion certificate." }
   ];
 
   return (
-    <div className="flex flex-col min-h-screen pt-[80px]" ref={container}>
+    <div className="flex flex-col min-h-screen relative overflow-hidden bg-offwhite">
       
-      {/* MARQUEE BAR */}
-      <div className="w-full h-[40px] bg-ivory border-y border-divider overflow-hidden flex items-center relative z-20">
-        <div className="flex w-max animate-marquee">
-          {Array(4).fill("RATED INDIA'S #1 CHESS ACADEMY ♟ FIDE CERTIFIED COACHES ♟ 10,000+ STUDENTS TRAINED ♟ EST. 2023 IN INDIA ♟").map((text, i) => (
-            <span key={i} className="font-nav text-[10px] font-[400] text-gold tracking-[0.2em] uppercase px-4 whitespace-nowrap">
-              {text}
-            </span>
-          ))}
-        </div>
+      {/* Liquid Aurora Background Effect */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-40 mix-blend-multiply">
+         <motion.div 
+           animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
+           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+           className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-[conic-gradient(from_0deg_at_50%_50%,rgba(26,63,168,0.08)_0deg,rgba(245,158,11,0.06)_120deg,rgba(26,63,168,0.08)_240deg,rgba(250,248,244,0.02)_360deg)] blur-[120px]" 
+         />
       </div>
 
-      {/* 1. HERO SECTION */}
-      <section className="relative min-h-[100vh] flex flex-col items-center justify-center overflow-hidden border-b border-divider">
-        <div className="absolute inset-0 z-0 bg-navy">
-          <Image 
-            src="/watercolor_chess_pieces.png" 
-            alt="Watercolor Chess background" 
-            fill 
-            className="object-cover object-center"
-            priority
-          />
+      {/* Floating Chess Icons */}
+      {mounted && (
+        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+          {['♔', '♕', '♖', '♗', '♘', '♙', '♚', '♛'].map((piece, i) => (
+            <motion.div
+              key={i}
+              animate={{ y: [0, -60, 0], rotate: [0, 15, -15, 0], x: [0, 30, -30, 0] }}
+              transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
+              className="absolute opacity-[0.04] text-[#1a3fa8] select-none"
+              style={{ top: `${((i * 15) + Math.random() * 20) % 100}%`, left: `${((i * 12) + Math.random() * 20) % 100}%`, fontSize: `${Math.random() * 8 + 6}rem`, filter: "blur(2px)" }}
+            >
+              {piece}
+            </motion.div>
+          ))}
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(10,20,50,0.45)] to-[rgba(10,20,50,0.65)] z-0 pointer-events-none" />
+      )}
+
+      {/* 1. HERO SECTION */}
+      <motion.section 
+        className="relative min-h-[100svh] flex items-center pt-28 pb-20 justify-center overflow-hidden z-10"
+      >
+        <motion.div 
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-0 z-0"
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1450]/90 to-[#0a1450]/70 z-10 mix-blend-multiply" />
+          <div className="absolute inset-0 z-0 bg-[url('/watercolor_chess_pieces.png')] bg-cover bg-center" />
+        </motion.div>
         
-        <div className="container relative z-10 mx-auto px-[24px] md:px-[48px] text-center flex flex-col items-center">
+        <div className="container relative z-20 mx-[24px] md:mx-[48px] lg:mx-auto max-w-[1400px]">
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 items-center justify-between">
+            
+            {/* LEFT COLUMN */}
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+              className="w-full lg:w-[55%] flex flex-col items-start"
+            >
+               <motion.div variants={fadeUp} className="flex items-center gap-6 mb-6">
+                 <div className="h-[2px] w-16 bg-gradient-to-r from-transparent to-[#f59e0b]/80" />
+                 <span className="font-nav text-sm uppercase tracking-[0.5em] text-[#f59e0b] font-black drop-shadow-md">Premium Chess Academy</span>
+               </motion.div>
+               <motion.h1 
+                 className="font-hero font-[800] text-white text-[clamp(4.5rem,8vw,7.5rem)] leading-[0.95] mb-6 drop-shadow-2xl"
+               >
+                 {"Master the Art of Chess".split(" ").map((word, i) => (
+                   <motion.span key={i} variants={fadeUp} className="inline-block mr-[0.25em]">{word}</motion.span>
+                 ))}
+               </motion.h1>
+
+               <motion.p 
+                 variants={fadeUp}
+                 className="font-body text-[#f59e0b] text-[1.6rem] md:text-[2.2rem] mb-6 font-semibold italic drop-shadow-md"
+               >
+                 Holistic Development Through Chess!
+               </motion.p>
+               
+               <motion.p 
+                 variants={fadeUp}
+                 className="font-body text-gray-200 text-[1.2rem] md:text-[1.3rem] mb-12 max-w-[500px] leading-[1.8] font-medium"
+               >
+                 Specialized courses for ages 5–15.<br/>Join 200+ kids across 10 countries.
+               </motion.p>
+
+               <motion.div 
+                 variants={fadeUp}
+                 className="flex flex-wrap gap-4 mb-12"
+               >
+                 {["Beginner", "Intermediate", "Advanced"].map((pill, i) => (
+                   <span key={i} className="px-6 py-2.5 font-nav text-[0.8rem] uppercase font-black tracking-widest text-[#f59e0b] border-2 border-[#f59e0b]/30 bg-white/5 backdrop-blur-sm rounded-full shadow-sm">
+                     {pill}
+                   </span>
+                 ))}
+               </motion.div>
+
+               <motion.div 
+                 variants={fadeUp}
+                 className="flex flex-col sm:flex-row gap-5 items-center w-full sm:w-auto mt-4"
+               >
+                 <MagneticButton>
+                   <Link href="#trial" className="w-full sm:w-auto relative overflow-hidden bg-gradient-to-r from-[#f59e0b] to-[#d98b0a] text-[#0f1e4a] font-nav font-black uppercase tracking-widest text-[1rem] px-10 py-5 rounded-full transition-all shadow-[0_15px_30px_rgba(245,158,11,0.3)] hover:shadow-[0_20px_40px_rgba(245,158,11,0.4)] hover:-translate-y-1 text-center group/btn cursor-pointer block">
+                     <span className="relative z-10">Get Started</span>
+                     <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
+                   </Link>
+                 </MagneticButton>
+                 <MagneticButton>
+                   <Link href="#programs" className="w-full sm:w-auto bg-transparent border-2 border-white/50 hover:bg-white hover:text-[#0f1e4a] text-white font-nav font-black uppercase tracking-widest text-[1rem] px-10 py-5 rounded-full transition-all text-center cursor-pointer block">
+                     View Curriculum
+                   </Link>
+                 </MagneticButton>
+               </motion.div>
+            </motion.div>
+
+            {/* RIGHT COLUMN */}
+            <motion.div 
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+              className="w-full lg:w-[45%] lg:pl-10 relative z-20"
+              id="trial"
+              style={{ perspective: "2000px" }}
+            >
+              <motion.div 
+                whileHover={{ rotateY: -2, rotateX: 2, scale: 1.02 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="bg-white/95 backdrop-blur-3xl rounded-[32px] p-10 md:p-14 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border border-white/20 w-full relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#1a3fa8]/10 rounded-full blur-[80px]" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#f59e0b]/10 rounded-full blur-[80px]" />
+
+                <div className="flex items-center gap-4 mb-10 relative z-10">
+                   <div className="w-16 h-16 rounded-full bg-[#1a3fa8]/10 flex items-center justify-center shrink-0 border border-[#1a3fa8]/20">
+                     <span className="text-[#1a3fa8] text-3xl">♟</span>
+                   </div>
+                   <h3 className="font-hero text-[2.5rem] font-bold text-[#0f1e4a] leading-tight flex-1">Book a Free Trial Class</h3>
+                </div>
+                
+                <form className="flex flex-col gap-6 relative z-10" onSubmit={(e) => e.preventDefault()}>
+                  <div>
+                    <input type="text" placeholder="Child's Name" className="w-full bg-offwhite/50 border-2 border-transparent rounded-[16px] px-6 py-5 font-body font-semibold text-[#0f1e4a] placeholder:text-gray-400 outline-none focus:bg-white focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] transition-all" />
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-6">
+                    <div className="flex-1">
+                      <input type="number" placeholder="Age" className="w-full bg-offwhite/50 border-2 border-transparent rounded-[16px] px-6 py-5 font-body font-semibold text-[#0f1e4a] placeholder:text-gray-400 outline-none focus:bg-white focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] transition-all" />
+                    </div>
+                    <div className="flex-1">
+                      <select className="w-full bg-offwhite/50 border-2 border-transparent rounded-[16px] px-6 py-5 font-body font-semibold text-gray-400 outline-none focus:bg-white focus:text-[#0f1e4a] focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] transition-all appearance-none cursor-pointer">
+                        <option value="" disabled selected>Select Level</option>
+                        <option value="beginner" className="text-[#0f1e4a]">Beginner</option>
+                        <option value="intermediate" className="text-[#0f1e4a]">Intermediate</option>
+                        <option value="advanced" className="text-[#0f1e4a]">Advanced</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <input type="tel" placeholder="Phone Number" className="w-full bg-offwhite/50 border-2 border-transparent rounded-[16px] px-6 py-5 font-body font-semibold text-[#0f1e4a] placeholder:text-gray-400 outline-none focus:bg-white focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] transition-all" />
+                  </div>
+                  <MagneticButton className="w-full mt-4">
+                    <button className="relative w-full overflow-hidden bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white font-nav font-black uppercase tracking-[0.2em] rounded-[16px] py-[22px] shadow-[0_20px_40px_rgba(26,63,168,0.3)] hover:shadow-[0_25px_50px_rgba(26,63,168,0.4)] transition-all hover:-translate-y-1 group/submit">
+                      <span className="relative z-10 flex items-center justify-center gap-3">
+                        Book Now <ArrowRight className="w-6 h-6 group-hover/submit:translate-x-2 transition-transform" />
+                      </span>
+                      <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/submit:animate-[shimmer_1.5s_infinite]" />
+                    </button>
+                  </MagneticButton>
+                </form>
+              </motion.div>
+            </motion.div>
+
+          </div>
+        </div>
+      </motion.section>
+
+      {/* 2. OUR MISSION */}
+      <section className="py-[160px] px-[24px] md:px-[48px] text-center relative z-10 flex items-center justify-center min-h-screen border-b border-[#0f1e4a] overflow-hidden">
+        {/* Enormous Background Marquee */}
+        <div className="absolute top-1/2 left-0 w-full -translate-y-1/2 flex justify-center z-0">
+          <InfiniteMarquee text="THINK LIKE A GRANDMASTER • " speed={80} />
+        </div>
+
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="max-w-[1000px] mx-auto flex flex-col items-center relative z-10"
+        >
+          <motion.div variants={fadeUp} className="flex items-center gap-6 mb-8">
+             <div className="h-[2px] w-16 bg-gradient-to-r from-transparent to-[#1a3fa8]/40" />
+             <span className="font-nav text-sm uppercase tracking-[0.5em] text-[#1a3fa8] font-black bg-white/50 backdrop-blur-md px-4 py-2 rounded-full border border-white">Our Vision</span>
+             <div className="h-[2px] w-16 bg-gradient-to-l from-transparent to-[#1a3fa8]/40" />
+          </motion.div>
+          <div className="mb-8">
+            <TextRevealScroll text="Our Mission" />
+          </div>
+          <motion.p variants={fadeUp} className="font-body text-[1.4rem] md:text-[1.8rem] leading-[1.8] text-gray-700 font-medium">
+            Our mission at Chaturangveda is to foster a <span className="text-[#f59e0b] font-bold italic">deep love for chess</span> and to nurture the intellectual and strategic skills it develops. Through our specialized courses for all age groups, from young toddlers to advanced players, we aim to make chess accessible to everyone in our community.
+          </motion.p>
+        </motion.div>
+      </section>
+
+      {/* 3. WHY CHOOSE US */}
+      <section className="py-[120px] px-[24px] md:px-[48px] w-full relative z-10">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-[100px] flex flex-col items-center">
+            <div className="flex items-center gap-6 mb-4">
+               <div className="h-[2px] w-16 bg-gradient-to-r from-transparent to-[#1a3fa8]/40" />
+               <span className="font-nav text-sm uppercase tracking-[0.5em] text-[#1a3fa8] font-black">Excellence</span>
+               <div className="h-[2px] w-16 bg-gradient-to-l from-transparent to-[#1a3fa8]/40" />
+            </div>
+            <TextRevealScroll text="Why Choose Us" />
+          </div>
           
-          <div className="hero-sub mb-8 mt-24 md:mt-0">
-            <h2 className="inline-flex items-center gap-4 px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 font-nav text-white text-[11px] tracking-[0.22em] uppercase shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
-              <span className="w-[20px] h-[1px] bg-gold block"></span>
-              EST. IN INDIA SINCE 2023
-              <span className="w-[20px] h-[1px] bg-gold block"></span>
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-[40px]"
+          >
+            {[
+              { icon: <Award/>, title: "FIDE Rated Coaches", desc: "All coaches FIDE rated, 5+ years experience" },
+              { icon: <Globe/>, title: "200+ Kids, 10 Countries", desc: "Global community of young chess learners" },
+              { icon: <Shield/>, title: "Safe & Secure Learning", desc: "Protected privacy, safe environment" },
+              { icon: <TrendingUp/>, title: "Progress Tracking", desc: "Parents receive regular feedback" },
+              { icon: <CheckCircle/>, title: "Completion Certificate", desc: "Professional Chaturangveda certificate" },
+              { icon: <Users/>, title: "Parent Involvement", desc: "Structured participation for growth" }
+            ].map((feature, i) => (
+              <AnimatedHomeCard key={i}>
+                <motion.div style={{ transform: "translateZ(30px)" }} className="flex 1 h-full flex-col">
+                  <div className="w-[80px] h-[80px] rounded-2xl bg-gradient-to-br from-[#1a3fa8]/10 to-[#1a3fa8]/5 flex items-center justify-center mb-8 border border-[#1a3fa8]/20 shadow-inner text-[#1a3fa8]">
+                    {React.cloneElement(feature.icon as React.ReactElement, { className: "w-10 h-10 drop-shadow-md" })}
+                  </div>
+                  <h3 className="font-hero text-[1.8rem] font-bold text-[#0f1e4a] mb-4">{feature.title}</h3>
+                  <p className="font-body text-[1.15rem] font-medium leading-[1.7] text-gray-600">{feature.desc}</p>
+                </motion.div>
+              </AnimatedHomeCard>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 4. COURSES */}
+      <section id="programs" className="py-[160px] px-[24px] md:px-[48px] w-full relative z-10">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-[100px] flex flex-col items-center">
+             <div className="flex items-center gap-6 mb-4">
+               <div className="h-[2px] w-16 bg-gradient-to-r from-transparent to-[#1a3fa8]/40" />
+               <span className="font-nav text-sm uppercase tracking-[0.5em] text-[#1a3fa8] font-black">Our Programs</span>
+               <div className="h-[2px] w-16 bg-gradient-to-l from-transparent to-[#1a3fa8]/40" />
+             </div>
+             <TextRevealScroll text="Premium Courses" />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 xl:gap-12 items-center">
+            {[
+              { 
+                level: "Beginner", 
+                sessions: "2 sessions/week, 45 mins", 
+                group: "3–5 kids per group",
+                topics: ["Board Setup", "Piece Movements", "Basic Checkmates", "Opening Principles"],
+                active: false
+              },
+              { 
+                level: "Intermediate", 
+                sessions: "3 sessions/week, 45 mins", 
+                group: "3–5 kids per group",
+                topics: ["Tactics", "Middle-game", "Endgame"],
+                active: true 
+              },
+              { 
+                level: "Advanced", 
+                sessions: "3 sessions/week, 60 mins", 
+                group: "Up to 5 kids",
+                topics: ["Opening Prep", "Master Games Analysis"],
+                active: false
+              }
+            ].map((course, i) => (
+              <AnimatedHomeCard key={i} className={course.active ? "lg:-mx-4 lg:-my-8 z-20" : "z-10"}>
+                <motion.div style={{ transform: "translateZ(40px)" }} className="flex flex-col h-full w-full">
+                  
+                  {course.active && (
+                    <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-[#1a3fa8]/10 to-[#f59e0b]/10 blur-[50px] -z-10 rounded-full" />
+                  )}
+
+                  <h3 className="font-hero text-[3rem] font-bold mb-10 text-center text-[#0f1e4a]">
+                    {course.level}
+                  </h3>
+                  
+                  <div className="space-y-6 mb-12 flex-1 relative z-10">
+                    <div className="flex items-center gap-5">
+                      <div className="w-[56px] h-[56px] rounded-full flex items-center justify-center shrink-0 bg-[#1a3fa8]/10 text-[#1a3fa8] border border-[#1a3fa8]/20">
+                         <Clock className="w-6 h-6" />
+                      </div>
+                      <span className="font-body text-[1.1rem] font-bold text-gray-700">{course.sessions}</span>
+                    </div>
+                    <div className="flex items-center gap-5">
+                      <div className="w-[56px] h-[56px] rounded-full flex items-center justify-center shrink-0 bg-[#1a3fa8]/10 text-[#1a3fa8] border border-[#1a3fa8]/20">
+                         <Users className="w-6 h-6" />
+                      </div>
+                      <span className="font-body text-[1.1rem] font-bold text-gray-700">{course.group}</span>
+                    </div>
+                    <div className="flex items-start gap-5">
+                      <div className="w-[56px] h-[56px] rounded-full flex items-center justify-center shrink-0 mt-1 bg-[#f59e0b]/20 text-[#d98b0a] border border-[#f59e0b]/30">
+                         <CheckCircle className="w-6 h-6" />
+                      </div>
+                      <div className="font-body text-[1.1rem] font-medium text-gray-600 mt-3 leading-[1.6]">
+                        {course.topics.join(", ")}
+                      </div>
+                    </div>
+                  </div>
+
+                  <Link href="#trial" className="relative overflow-hidden w-full py-[20px] rounded-[16px] font-nav font-black tracking-widest uppercase text-[1rem] transition-all text-center flex justify-center items-center shadow-lg bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white hover:shadow-2xl hover:-translate-y-1 group/btn">
+                    <span className="relative z-10">Enroll Now</span>
+                    <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
+                  </Link>
+
+                </motion.div>
+              </AnimatedHomeCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. SERVICES */}
+      <section className="py-[120px] px-[24px] md:px-[48px] w-full relative z-10">
+        <div className="max-w-[1400px] mx-auto">
+           <div className="text-center mb-[100px] flex flex-col items-center">
+             <div className="flex items-center gap-6 mb-4">
+               <div className="h-[2px] w-16 bg-gradient-to-r from-transparent to-[#1a3fa8]/40" />
+               <span className="font-nav text-sm uppercase tracking-[0.5em] text-[#1a3fa8] font-black">Offerings</span>
+               <div className="h-[2px] w-16 bg-gradient-to-l from-transparent to-[#1a3fa8]/40" />
+             </div>
+             <TextRevealScroll text="Our Services" />
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-[40px]">
+              {[
+                { title: "Free Trial Class", desc: "Free session + trainer feedback" },
+                { title: "Group Chess Class", desc: "Live interactive, max 5 kids" },
+                { title: "Private 1:1 Chess Class", desc: "Fully tailored coaching" }
+              ].map((service, i) => (
+                <AnimatedHomeCard key={i}>
+                   <motion.div style={{ transform: "translateZ(30px)" }} className="flex flex-col items-center text-center w-full h-full justify-center">
+                     <div className="w-[100px] h-[100px] rounded-full bg-gradient-to-br from-[#1a3fa8]/10 to-[#1a3fa8]/5 text-[#1a3fa8] border border-[#1a3fa8]/20 flex items-center justify-center mb-10 shadow-inner font-hero text-[3rem] font-bold drop-shadow-md">
+                       {i+1}
+                     </div>
+                     <h3 className="font-hero text-[2rem] font-bold text-[#0f1e4a] mb-4 leading-tight">{service.title}</h3>
+                     <p className="font-body text-[1.2rem] font-medium text-gray-600">{service.desc}</p>
+                   </motion.div>
+                </AnimatedHomeCard>
+              ))}
+           </div>
+        </div>
+      </section>
+
+      {/* 6. HALL OF FAME CAROUSEL */}
+      <section className="py-[160px] px-[24px] md:px-[48px] bg-gradient-to-b from-[#0a1450] to-[#0f1e4a] relative z-20 overflow-hidden">
+        <div className="absolute inset-0 z-0 bg-[url('/watercolor_chess_pieces.png')] bg-cover bg-center opacity-[0.05]" />
+        <div className="max-w-[1400px] mx-auto text-center overflow-visible relative z-10">
+          <div className="flex flex-col items-center gap-6 mb-16">
+            <div className="flex items-center gap-6 mb-2">
+               <div className="h-[2px] w-16 bg-gradient-to-r from-transparent to-[#f59e0b]/40" />
+               <span className="font-nav text-sm uppercase tracking-[0.5em] text-[#f59e0b] font-black drop-shadow-md">Excellence</span>
+               <div className="h-[2px] w-16 bg-gradient-to-l from-transparent to-[#f59e0b]/40" />
+            </div>
+            <h2 className="text-[clamp(3.5rem,6vw,5rem)] font-[800] text-white font-hero drop-shadow-xl">
+              Hall of Fame
             </h2>
           </div>
           
-          <h1 className="font-hero font-[300] text-white uppercase leading-[1.1] max-w-[1400px] mb-6 flex flex-wrap justify-center" style={{ fontSize: "clamp(48px, 8vw, 120px)", textShadow: "0 4px 24px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.9)" }}>
-            {"MASTER THE ART OF CHESS".split(" ").map((word, i) => (
-              <span key={i} className="hero-word block mr-[0.3em]">{word}</span>
-            ))}
-          </h1>
-
-          <p className="hero-sub font-quote text-white/95 text-[24px] italic mb-12 capitalize" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.8)" }}>
-            "Where Strategy Meets Excellence"
-          </p>
-
-          <div className="hero-sub flex flex-col sm:flex-row gap-[20px] w-full sm:w-auto items-center mt-[48px]">
-            <Link href="/curriculum" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full px-[32px] py-[14px] text-white border-[2px] border-white bg-transparent font-hero text-[13px] uppercase tracking-[0.14em] h-auto rounded-none hover:bg-white hover:text-navy transition-colors duration-300 ease-out backdrop-blur-sm">
-                Curriculum & Schedule
-              </Button>
-            </Link>
-            <Link href="/services" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full px-[32px] py-[14px] bg-[#C9A84C] font-hero text-[#0D1B2A] text-[13px] uppercase tracking-[0.14em] h-auto rounded-none border-none hover:bg-white transition-colors duration-300 ease-out">
-                Get Started
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
-          <span className="font-nav text-[10px] text-white tracking-[0.2em] uppercase" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.8)" }}>Scroll</span>
-          <div className="w-[1px] h-[48px] bg-white/20 overflow-hidden relative">
-            <div className="absolute top-0 left-0 w-full h-[50%] bg-white animate-scroll-line" />
-          </div>
-        </div>
-      </section>
-
-      {/* GAP REMOVED: STATISTICS SECTION COMPLETELY REMOVED */}
-
-      {/* FEATURES SECTION */}
-      <section className="py-[60px] md:py-[120px] px-[24px] md:px-[48px] bg-[#0D1B2A]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-[64px] fade-up">
-            <h2 className="font-nav text-[#C9A84C] text-[11px] tracking-[0.18em] uppercase mb-6">Our Philosophy</h2>
-            <h3 className="font-hero text-4xl md:text-[48px] font-[300] text-white">Why Join Our Academy</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px] stagger-grid">
-            {[
-              { title: "Expert Coaches", desc: "Learn from FIDE-rated professionals with years of tournament experience." },
-              { title: "Structured Curriculum", desc: "Systematically build strategic thinking from beginner to advanced level." },
-              { title: "Proven Results", desc: "Students consistently perform at district, state, and national competitions." }
-            ].map((feature, i) => (
-              <div key={i} className="group bg-white rounded-none p-[32px] border-t-[3px] border-t-[#C9A84C] shadow-[0_4px_24px_rgba(11,26,46,0.05)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_16px_48px_rgba(11,26,46,0.1)]">
-                <h4 className="font-serif font-bold text-[#0D1B2A] text-[24px] mb-[16px]">{feature.title}</h4>
-                <p className="font-body text-[#444] text-[0.95rem] leading-[1.7]">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* COURSES SECTION */}
-      <section className="py-[60px] md:py-[120px] px-[24px] md:px-[48px] bg-[#0D1B2A] border-y border-divider">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-[64px] fade-up">
-            <h2 className="font-nav text-gold text-[11px] tracking-[0.18em] uppercase mb-6">Structured Learning</h2>
-            <h3 className="font-hero text-4xl md:text-[48px] font-[300] text-white">Curriculum Tracks</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px] stagger-grid">
-            {[
-              { level: "BEGINNER", name: "Starter Plan", price: "₹999/month", features: ["4 classes/month", "Group sessions", "Basics & openings", "Progress tracking"], recommended: false },
-              { level: "MOST POPULAR", name: "Growth Plan", price: "₹1,799/month", features: ["8 classes/month", "Group + 1 private session", "Tactics & middlegame", "Tournament prep"], recommended: true },
-              { level: "ADVANCED", name: "Elite Plan", price: "₹2,499/month", features: ["12 classes/month", "3 private sessions", "Full curriculum access", "Competition coaching"], recommended: false }
-            ].map((course, i) => (
-              <div key={i} className={`group bg-[#1A2F4A] p-[40px_32px] rounded-none relative transition-all duration-300 ${course.recommended ? 'border-[1px] border-[#C9A84C] shadow-[0_16px_48px_rgba(201,168,76,0.15)]' : 'border-none shadow-[0_4px_24px_rgba(11,26,46,0.05)]'}`}>
-                <div className="inline-block bg-[rgba(201,168,76,0.1)] text-[#C9A84C] font-nav text-[10px] tracking-[0.14em] uppercase px-[12px] py-[4px] rounded-sm mb-[24px]">
-                  {course.level}
+          <div className="flex gap-10 overflow-x-auto pb-12 pt-8 snap-x scrollbar-hide px-4 justify-start lg:justify-center items-center">
+            {["Advaith", "Srinika", "Manish", "Shourya", "Sri Samanvith"].map((name, i) => (
+              <motion.div 
+                key={i}
+                whileHover={{ y: -15, scale: 1.05 }}
+                className="min-w-[240px] flex flex-col items-center text-center snap-center p-6 bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all"
+              >
+                <div className="w-[160px] h-[160px] rounded-full overflow-hidden mb-8 border-4 border-[#f59e0b]/80 outline outline-[4px] outline-white/10 shadow-[0_0_40px_rgba(245,158,11,0.3)] relative">
+                  <Image src={`https://i.pravatar.cc/300?img=${i + 40}`} alt={name} fill className="object-cover" />
                 </div>
-                <h4 className="font-hero text-[1.4rem] text-white mb-[12px]">{course.name}</h4>
-                <ul className="mb-[24px] space-y-2 min-h-[120px] mt-[16px]">
-                  {course.features.map((feat, j) => (
-                    <li key={j} className="text-[rgba(245,240,232,0.75)] text-[0.9rem] flex items-center gap-2 font-body font-[300]">
-                       <span className="text-[#C9A84C] text-[0.8rem]">✦</span> {feat}
-                    </li>
-                  ))}
-                </ul>
-                <div className="font-cormorant italic text-[28px] text-[#C9A84C] mb-[32px]">
-                  {course.price}
+                <h4 className="font-hero text-[1.8rem] font-bold text-white mb-4 drop-shadow-md">{name}</h4>
+                <div className="flex items-center gap-3 justify-center bg-white/10 px-5 py-2 rounded-full border border-white/20">
+                  <span className="text-[1.2rem]">🇮🇳</span>
+                  <span className="font-nav text-[0.8rem] font-black tracking-widest uppercase text-[#f59e0b]">India</span>
                 </div>
-                <Button className={`w-full font-nav text-[12px] tracking-[0.14em] uppercase rounded-none transition-colors duration-300 h-auto py-[16px] ${course.recommended ? 'bg-[#C9A84C] text-[#0D1B2A] border-none hover:bg-white hover:text-[#0D1B2A]' : 'bg-transparent border-[1.5px] border-[#C9A84C] text-[#C9A84C] hover:bg-[#C9A84C] hover:text-[#0D1B2A]'}`}>
-                  Enroll Now
-                </Button>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      <div className="w-full flex justify-center py-[24px] bg-white">
-        <div className="inline-flex items-center gap-[4px] mx-auto">
-          <span className="w-[120px] h-[1px] bg-divider"></span>
-          {[...Array(8)].map((_, i) => (
-            <span key={i} className={`w-[8px] h-[8px] ${i % 2 === 0 ? 'bg-navy' : 'bg-gold'}`} />
-          ))}
-          <span className="w-[120px] h-[1px] bg-divider"></span>
+      {/* 7. FAQ */}
+      <section className="py-[160px] px-[24px] md:px-[48px] w-full relative z-10">
+        <div className="text-center mb-[100px] flex flex-col items-center">
+          <div className="flex items-center gap-6 mb-4">
+             <div className="h-[2px] w-16 bg-gradient-to-r from-transparent to-[#1a3fa8]/40" />
+             <span className="font-nav text-sm uppercase tracking-[0.5em] text-[#1a3fa8] font-black">Support</span>
+             <div className="h-[2px] w-16 bg-gradient-to-l from-transparent to-[#1a3fa8]/40" />
+          </div>
+          <TextRevealScroll text="Frequently Asked Questions" />
         </div>
-      </div>
+        <AnimatedAccordion items={faqs} />
+      </section>
 
-      {/* COACHES SECTION */}
-      <section className="py-[60px] md:py-[120px] px-[24px] md:px-[48px] bg-ivory">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-[64px] fade-up">
-            <h2 className="font-nav text-gold text-[11px] tracking-[0.18em] uppercase mb-6">Our Masters</h2>
-            <h3 className="font-hero text-4xl md:text-[48px] font-[300] text-navy">FIDE Certified Coaches</h3>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[24px] stagger-grid">
-            {[
-              { name: "GM Aryan Kapoor", title: "FIDE Master", bio: "10+ years of coaching experience. National-level tournament player specializing in classical openings." },
-              { name: "WFM Divya Nair", title: "Women's FIDE Master", bio: "State champion and certified coach with expertise in endgame technique and youth development." },
-              { name: "IM Suresh Rao", title: "International Master", bio: "Over 15 years of competitive chess. Specializes in positional play and strategic planning." },
-              { name: "FM Karan Desai", title: "FIDE Master", bio: "Tactical specialist and youth coach with multiple state-level tournament victories." }
-            ].map((coach, i) => (
-              <div key={i} className="bg-[#1A2F4A] border-t-[3px] border-t-[#C9A84C] p-[40px_24px] text-center rounded-none shadow-[0_4px_24px_rgba(11,26,46,0.05)] transition-all duration-300 hover:-translate-y-[6px] hover:shadow-[0_16px_40px_rgba(11,26,46,0.1)] border-x-0 border-b-0">
-                <div className="relative w-[96px] h-[96px] mx-auto rounded-full border-[2px] border-[#C9A84C] p-1">
-                  <div className="w-full h-full rounded-full bg-divider overflow-hidden relative z-0">
-                    <img src={`https://i.pravatar.cc/150?img=${i + 15}`} alt="Coach" className="w-full h-full object-cover grayscale mix-blend-multiply opacity-80" />
-                  </div>
-                </div>
-                <h4 className="font-hero text-[20px] font-bold text-white mt-[20px]">{coach.name}</h4>
-                <p className="font-nav text-[10px] tracking-[0.14em] uppercase text-[#C9A84C] mt-[6px]">{coach.title}</p>
-                <p className="font-body text-[rgba(245,240,232,0.70)] text-[0.85rem] mt-[16px] leading-[1.6] px-2">{coach.bio}</p>
-              </div>
-            ))}
-          </div>
+      {/* 8. BECOME A COACH & 9. CONTACT */}
+      <section className="py-[120px] px-[24px] md:px-[48px] relative z-10">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-16">
+           
+           {/* CONTACT INFO */}
+           <AnimatedHomeCard>
+             <motion.div style={{ transform: "translateZ(30px)" }} className="flex flex-col w-full h-full">
+               <h3 className="font-hero text-[3rem] font-[800] text-[#0f1e4a] mb-12 leading-[1.1]">Contact Info</h3>
+               
+               <div className="flex flex-col gap-10 mb-14 border-b border-gray-200/50 pb-12">
+                 <div className="flex items-start gap-6">
+                   <div className="w-[60px] h-[60px] rounded-full bg-[#1a3fa8]/10 flex items-center justify-center shrink-0 border border-[#1a3fa8]/20">
+                     <Phone className="w-7 h-7 text-[#1a3fa8]" />
+                   </div>
+                   <div>
+                     <h4 className="font-nav text-[0.8rem] font-black text-[#1a3fa8] uppercase tracking-widest mb-3">Phone</h4>
+                     <p className="font-hero text-[1.4rem] text-[#0f1e4a] font-bold">+91 7569194709<br/>+91 8919174512</p>
+                   </div>
+                 </div>
+                 
+                 <div className="flex items-start gap-6">
+                   <div className="w-[60px] h-[60px] rounded-full bg-[#1a3fa8]/10 flex items-center justify-center shrink-0 border border-[#1a3fa8]/20">
+                     <Mail className="w-7 h-7 text-[#1a3fa8]" />
+                   </div>
+                   <div>
+                     <h4 className="font-nav text-[0.8rem] font-black text-[#1a3fa8] uppercase tracking-widest mb-3">Email</h4>
+                     <p className="font-hero text-[1.4rem] text-[#0f1e4a] font-bold">chaturangveda@gmail.com</p>
+                   </div>
+                 </div>
+
+                 <div className="flex items-start gap-6">
+                   <div className="w-[60px] h-[60px] rounded-full bg-[#1a3fa8]/10 flex items-center justify-center shrink-0 border border-[#1a3fa8]/20">
+                     <Clock className="w-7 h-7 text-[#1a3fa8]" />
+                   </div>
+                   <div>
+                     <h4 className="font-nav text-[0.8rem] font-black text-[#1a3fa8] uppercase tracking-widest mb-3">Hours</h4>
+                     <p className="font-hero text-[1.2rem] text-gray-700 font-medium leading-[1.6]">
+                       Mon–Fri 4–8 PM<br/>Sat 10 AM–6 PM<br/>Sun: Closed
+                     </p>
+                   </div>
+                 </div>
+               </div>
+
+               <div className="pt-4">
+                  <h4 className="font-hero text-[2rem] font-bold text-[#0f1e4a] mb-8">Send a Message</h4>
+                  <form className="flex flex-col gap-5">
+                    <input type="text" placeholder="Full Name" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
+                    <input type="email" placeholder="Email Address" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
+                    <textarea placeholder="Message" rows={4} className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all resize-none placeholder:text-gray-400" />
+                    <button className="relative w-full overflow-hidden mt-2 rounded-[16px] bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white font-nav font-black tracking-widest uppercase text-[1rem] py-[22px] shadow-[0_15px_30px_rgba(26,63,168,0.3)] hover:shadow-[0_20px_40px_rgba(26,63,168,0.4)] transition-all hover:-translate-y-1 group/submit flex justify-center items-center gap-3">
+                      <span className="relative z-10 flex items-center justify-center gap-3">
+                        Send <Send className="w-5 h-5 group-hover/submit:translate-x-2 transition-transform"/>
+                      </span>
+                      <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/submit:animate-[shimmer_1.5s_infinite]" />
+                    </button>
+                  </form>
+               </div>
+             </motion.div>
+           </AnimatedHomeCard>
+
+           {/* BECOME A COACH */}
+           <AnimatedHomeCard>
+             <motion.div style={{ transform: "translateZ(30px)" }} className="flex flex-col w-full h-full">
+               <h3 className="font-hero text-[3rem] font-[800] text-[#0f1e4a] mb-6 leading-[1.1]">Become a Coach</h3>
+               <p className="font-body text-[1.2rem] font-medium text-gray-600 mb-12 pb-10 border-b border-gray-200/50 leading-[1.7]">
+                 Passionate about teaching? Join our global team of professionals. Requirements: FIDE rating, passion for teaching.
+               </p>
+               
+               <form className="flex flex-col gap-6">
+                 <input type="text" placeholder="Full Name" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
+                 <input type="email" placeholder="Email Address" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
+                 <input type="text" placeholder="Experience" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
+                 <input type="text" placeholder="FIDE ID (Optional)" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
+                 <textarea placeholder="Brief Bio" rows={4} className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all resize-none mb-4 placeholder:text-gray-400" />
+                 <button className="relative w-full overflow-hidden mt-2 rounded-[16px] bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white font-nav font-black tracking-widest uppercase text-[1rem] py-[22px] shadow-[0_15px_30px_rgba(26,63,168,0.3)] hover:shadow-[0_20px_40px_rgba(26,63,168,0.4)] transition-all hover:-translate-y-1 group/submit flex justify-center items-center gap-3">
+                    <span className="relative z-10 flex items-center justify-center gap-3">
+                      Submit Application <ArrowRight className="w-5 h-5 group-hover/submit:translate-x-2 transition-transform"/>
+                    </span>
+                    <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/submit:animate-[shimmer_1.5s_infinite]" />
+                 </button>
+               </form>
+             </motion.div>
+           </AnimatedHomeCard>
+
         </div>
       </section>
 
-      {/* TESTIMONIALS SECTION */}
-      <section className="py-[60px] md:py-[120px] px-[24px] md:px-[48px] bg-[#0D1B2A] relative overflow-hidden">
-        
-        {/* Decorative Quote Mark (Option B) */}
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 font-hero text-[#C9A84C] opacity-15 pointer-events-none leading-none select-none text-[8rem]">
-          "
-        </div>
-
-        <div className="max-w-7xl mx-auto relative z-10 pt-[24px]">
-          <div className="text-center mb-[64px] fade-up">
-            <h2 className="font-nav text-[#C9A84C] text-[11px] tracking-[0.18em] uppercase mb-6">Hall of Fame</h2>
-            <h3 className="font-hero text-4xl md:text-[48px] font-[300] text-white">Student Outcomes</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-[32px] stagger-grid">
-            {[
-              { name: "Arjun Mehta", role: "Parent of student", quote: "My son improved drastically within 3 months. The coaches are incredibly patient and structured." },
-              { name: "Priya Sharma", role: "Student, Age 14", quote: "I went from knowing basic rules to winning my first district tournament. Chaturangveda changed everything." },
-              { name: "Rohit Kulkarni", role: "Parent of student", quote: "Excellent curriculum, dedicated coaches, and a real passion for chess. Highly recommended." }
-            ].map((kid, i) => (
-              <div key={i} className="bg-[#1A2F4A] border-t-[3px] border-t-[#C9A84C] p-[40px] rounded-none shadow-[0_4px_24px_rgba(11,26,46,0.05)] text-center flex flex-col items-center justify-between border-x-0 border-b-0">
-                <p className="font-cormorant italic text-[18px] text-[#F5F0E8] leading-[1.6] font-[300]">
-                  "{kid.quote}"
-                </p>
-                <div className="mt-[32px] flex flex-col items-center">
-                  <div className="text-[#C9A84C] text-[16px] mb-[16px] tracking-widest leading-none">
-                    ★★★★★
-                  </div>
-                  <div className="w-[48px] h-[48px] rounded-full border border-gold overflow-hidden mb-[16px]">
-                    <img src={`https://i.pravatar.cc/150?img=${i + 40}`} alt="Student" className="w-full h-full object-cover grayscale opacity-80" />
-                  </div>
-                  <h4 className="font-hero text-[16px] font-bold text-white uppercase tracking-wider">{kid.name}</h4>
-                  <span className="font-nav text-[10px] text-[#C9A84C] tracking-[0.16em] uppercase mt-[4px]">{kid.role}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <div className="w-full flex justify-center py-[24px] bg-white">
-        <div className="inline-flex items-center gap-[4px] mx-auto">
-          <span className="w-[120px] h-[1px] bg-divider"></span>
-          {[...Array(8)].map((_, i) => (
-            <span key={i} className={`w-[8px] h-[8px] ${i % 2 === 0 ? 'bg-navy' : 'bg-gold'}`} />
-          ))}
-          <span className="w-[120px] h-[1px] bg-divider"></span>
-        </div>
-      </div>
-
-      {/* FAQ SECTION */}
-      <section className="py-[60px] md:py-[120px] px-[24px] md:px-[48px] bg-ivory pb-[160px]">
-        <div className="max-w-4xl mx-auto">
-          <div className="fade-up flex flex-col items-center justify-center mb-16 text-center">
-             <h2 className="font-nav text-gold text-[11px] tracking-[0.18em] uppercase mb-6">Knowledge Base</h2>
-             <h3 className="font-hero font-[300] text-4xl md:text-[48px] text-navy mb-8">Questions & Answers</h3>
-          </div>
-          <div className="fade-up border-y border-divider py-10">
-            <Accordion items={faqs} />
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
