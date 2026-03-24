@@ -2,6 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/animations";
+import { LuxuryButton } from "@/components/shared/luxury-button";
 
 const AnimatedContactCard = ({ children, title, subtitle }: any) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -192,12 +193,11 @@ export default function ContactPage() {
                 rows={4}
                 className="w-full bg-white/50 backdrop-blur-sm border-2 border-transparent shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-[12px] px-[24px] py-[20px] text-[#0f1e4a] font-body font-bold text-[1.05rem] outline-none resize-none hover:shadow-[0_8px_30px_rgba(26,63,168,0.08)] focus:border-[#1a3fa8]/50 focus:shadow-[0_8px_30px_rgba(26,63,168,0.15)] transition-all mb-[16px] placeholder:text-gray-400"
               />
-              <button className="relative w-full overflow-hidden rounded-[12px] bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white font-nav text-[1rem] font-black uppercase tracking-[0.2em] py-[20px] shadow-[0_15px_30px_rgba(26,63,168,0.3)] hover:shadow-[0_20px_40px_rgba(26,63,168,0.4)] transition-all hover:-translate-y-1 group/submit">
-                <span className="relative z-10 flex items-center justify-center gap-3">
-                  Send Message <span className="group-hover/submit:translate-x-2 transition-transform">→</span>
-                </span>
-                <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/submit:animate-[shimmer_1.5s_infinite]" />
-              </button>
+              <div className="mt-4 w-full">
+                <LuxuryButton className="w-full">
+                  Send Message
+                </LuxuryButton>
+              </div>
             </form>
           </AnimatedContactCard>
 

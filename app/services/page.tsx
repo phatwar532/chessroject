@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/animations";
+import { LuxuryButton } from "@/components/shared/luxury-button";
 
 const AnimatedServiceCard = ({ title, desc, icon }: any) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -166,10 +167,10 @@ export default function ServicesPage() {
           <motion.p variants={fadeUp} className="font-hero italic text-[#f59e0b] text-[1.8rem] mb-[48px] drop-shadow-sm font-semibold">
             "Every grandmaster was once a beginner."
           </motion.p>
-          <motion.div variants={fadeUp}>
-            <Link href="/contact" className="inline-flex w-max items-center justify-center bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white font-nav text-[0.85rem] font-bold uppercase tracking-[0.2em] px-10 py-5 rounded-full shadow-[0_10px_30px_rgba(26,63,168,0.4)] hover:shadow-[0_15px_40px_rgba(26,63,168,0.5)] transition-all hover:-translate-y-1">
-              BOOK FREE TRIAL →
-            </Link>
+          <motion.div variants={fadeUp} className="mt-4">
+            <LuxuryButton href="/contact" dark={false}>
+              BOOK FREE TRIAL
+            </LuxuryButton>
           </motion.div>
         </motion.div>
       </section>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { LuxuryButton } from "./luxury-button";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -117,15 +118,9 @@ export function Navbar() {
         </div>
         
         <div className="hidden lg:flex flex-shrink-0 pl-6">
-          <Link 
-            href="#trial" 
-            className="relative overflow-hidden bg-gradient-to-r from-[#f59e0b] to-[#d98b0a] text-[#0f1e4a] font-nav font-black uppercase tracking-widest text-[0.75rem] px-8 py-3.5 rounded-full transition-all shadow-[0_10px_20px_rgba(245,158,11,0.2)] hover:shadow-[0_15px_30px_rgba(245,158,11,0.4)] hover:-translate-y-[1px] group/navbtn flex items-center gap-2"
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Book Trial <ArrowRight className="w-4 h-4 group-hover/navbtn:translate-x-1 transition-transform" />
-            </span>
-            <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/navbtn:animate-[shimmer_1.5s_infinite]" />
-          </Link>
+          <LuxuryButton href="#trial" dark={false} className="py-2.5 px-6 text-[0.7rem]">
+            Book Trial <ArrowRight className="w-4 h-4" />
+          </LuxuryButton>
         </div>
         
         <div className="flex lg:hidden">

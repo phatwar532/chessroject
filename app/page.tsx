@@ -7,6 +7,7 @@ import { fadeUp, staggerContainer, scaleIn } from "@/lib/animations";
 import { MagneticButton } from "@/components/shared/magnetic-button";
 import { InfiniteMarquee } from "@/components/shared/marquee";
 import { TextRevealScroll } from "@/components/shared/text-reveal";
+import { LuxuryButton } from "@/components/shared/luxury-button";
 import { 
   ArrowRight, Shield, Globe, TrendingUp, Award, Users, CheckCircle, 
   Phone, Mail, Clock, Send 
@@ -221,17 +222,13 @@ export default function HomePage() {
                  variants={fadeUp}
                  className="flex flex-col sm:flex-row gap-5 items-center w-full sm:w-auto mt-4"
                >
-                 <MagneticButton>
-                   <Link href="#trial" className="w-full sm:w-auto relative overflow-hidden bg-gradient-to-r from-[#f59e0b] to-[#d98b0a] text-[#0f1e4a] font-nav font-black uppercase tracking-widest text-[1rem] px-10 py-5 rounded-full transition-all shadow-[0_15px_30px_rgba(245,158,11,0.3)] hover:shadow-[0_20px_40px_rgba(245,158,11,0.4)] hover:-translate-y-1 text-center group/btn cursor-pointer block">
-                     <span className="relative z-10">Get Started</span>
-                     <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
-                   </Link>
-                 </MagneticButton>
-                 <MagneticButton>
-                   <Link href="#programs" className="w-full sm:w-auto bg-transparent border-2 border-white/50 hover:bg-white hover:text-[#0f1e4a] text-white font-nav font-black uppercase tracking-widest text-[1rem] px-10 py-5 rounded-full transition-all text-center cursor-pointer block">
-                     View Curriculum
-                   </Link>
-                 </MagneticButton>
+                 <LuxuryButton href="#trial" dark={false}>
+                   Get Started <ArrowRight className="w-5 h-5"/>
+                 </LuxuryButton>
+                 
+                 <LuxuryButton href="#programs" dark={true}>
+                   View Curriculum
+                 </LuxuryButton>
                </motion.div>
             </motion.div>
 
@@ -279,14 +276,11 @@ export default function HomePage() {
                   <div>
                     <input type="tel" placeholder="Phone Number" className="w-full bg-offwhite/50 border-2 border-transparent rounded-[16px] px-6 py-5 font-body font-semibold text-[#0f1e4a] placeholder:text-gray-400 outline-none focus:bg-white focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] transition-all" />
                   </div>
-                  <MagneticButton className="w-full mt-4">
-                    <button className="relative w-full overflow-hidden bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white font-nav font-black uppercase tracking-[0.2em] rounded-[16px] py-[22px] shadow-[0_20px_40px_rgba(26,63,168,0.3)] hover:shadow-[0_25px_50px_rgba(26,63,168,0.4)] transition-all hover:-translate-y-1 group/submit">
-                      <span className="relative z-10 flex items-center justify-center gap-3">
-                        Book Now <ArrowRight className="w-6 h-6 group-hover/submit:translate-x-2 transition-transform" />
-                      </span>
-                      <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/submit:animate-[shimmer_1.5s_infinite]" />
-                    </button>
-                  </MagneticButton>
+                  <div className="mt-4">
+                    <LuxuryButton className="w-full">
+                      Book Now <ArrowRight className="w-5 h-5" />
+                    </LuxuryButton>
+                  </div>
                 </form>
               </motion.div>
             </motion.div>
@@ -434,10 +428,11 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <Link href="#trial" className="relative overflow-hidden w-full py-[20px] rounded-[16px] font-nav font-black tracking-widest uppercase text-[1rem] transition-all text-center flex justify-center items-center shadow-lg bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white hover:shadow-2xl hover:-translate-y-1 group/btn">
-                    <span className="relative z-10">Enroll Now</span>
-                    <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
-                  </Link>
+                  <div className="mt-2 w-full">
+                    <LuxuryButton href="#trial" dark={false} className="w-full text-[1rem]">
+                      Enroll Now <ArrowRight className="w-5 h-5"/>
+                    </LuxuryButton>
+                  </div>
 
                 </motion.div>
               </AnimatedHomeCard>
@@ -576,12 +571,11 @@ export default function HomePage() {
                     <input type="text" placeholder="Full Name" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
                     <input type="email" placeholder="Email Address" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
                     <textarea placeholder="Message" rows={4} className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all resize-none placeholder:text-gray-400" />
-                    <button className="relative w-full overflow-hidden mt-2 rounded-[16px] bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white font-nav font-black tracking-widest uppercase text-[1rem] py-[22px] shadow-[0_15px_30px_rgba(26,63,168,0.3)] hover:shadow-[0_20px_40px_rgba(26,63,168,0.4)] transition-all hover:-translate-y-1 group/submit flex justify-center items-center gap-3">
-                      <span className="relative z-10 flex items-center justify-center gap-3">
-                        Send <Send className="w-5 h-5 group-hover/submit:translate-x-2 transition-transform"/>
-                      </span>
-                      <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/submit:animate-[shimmer_1.5s_infinite]" />
-                    </button>
+                    <div className="mt-4 w-full">
+                      <LuxuryButton className="w-full">
+                        Send <Send className="w-5 h-5" />
+                      </LuxuryButton>
+                    </div>
                   </form>
                </div>
              </motion.div>
@@ -601,12 +595,11 @@ export default function HomePage() {
                  <input type="text" placeholder="Experience" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
                  <input type="text" placeholder="FIDE ID (Optional)" className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all placeholder:text-gray-400" />
                  <textarea placeholder="Brief Bio" rows={4} className="w-full bg-white/60 border-2 border-transparent focus:border-[#1a3fa8]/50 focus:shadow-[0_10px_30px_rgba(26,63,168,0.1)] rounded-2xl px-6 py-5 font-body font-bold text-[#0f1e4a] outline-none transition-all resize-none mb-4 placeholder:text-gray-400" />
-                 <button className="relative w-full overflow-hidden mt-2 rounded-[16px] bg-gradient-to-r from-[#1a3fa8] to-[#15348c] text-white font-nav font-black tracking-widest uppercase text-[1rem] py-[22px] shadow-[0_15px_30px_rgba(26,63,168,0.3)] hover:shadow-[0_20px_40px_rgba(26,63,168,0.4)] transition-all hover:-translate-y-1 group/submit flex justify-center items-center gap-3">
-                    <span className="relative z-10 flex items-center justify-center gap-3">
-                      Submit Application <ArrowRight className="w-5 h-5 group-hover/submit:translate-x-2 transition-transform"/>
-                    </span>
-                    <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/submit:animate-[shimmer_1.5s_infinite]" />
-                 </button>
+                 <div className="mt-4 w-full">
+                    <LuxuryButton className="w-full">
+                      Submit Application <ArrowRight className="w-5 h-5" />
+                    </LuxuryButton>
+                 </div>
                </form>
              </motion.div>
            </AnimatedHomeCard>

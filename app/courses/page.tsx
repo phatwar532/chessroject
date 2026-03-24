@@ -10,6 +10,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/animations";
+import { LuxuryButton } from "@/components/shared/luxury-button";
 
 const CourseCard = ({ course, index, isFeatured }: any) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -143,32 +144,14 @@ const CourseCard = ({ course, index, isFeatured }: any) => {
           </CardContent>
 
           <CardFooter className="pt-2 pb-8">
-            <Link href="/demo" className="w-full h-full block">
-              <motion.div style={{ transform: "translateZ(70px)" }} className="w-full">
-                <Button 
-                  className={cn(
-                    "w-full h-16 rounded-full uppercase tracking-[0.25em] font-black font-nav transition-all duration-500 shadow-xl relative overflow-hidden group/btn",
-                    isFeatured 
-                      ? "bg-gradient-to-r from-[#d98b0a] to-[#f59e0b] hover:from-[#f59e0b] hover:to-[#d98b0a] text-white shadow-[#f59e0b]/40 ring-1 ring-white/50" 
-                      : "bg-gradient-to-r from-[#15348c] to-[#1a3fa8] hover:from-[#1a3fa8] hover:to-[#15348c] text-white shadow-[#1a3fa8]/40 ring-1 ring-white/50"
-                  )} 
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-3 group-hover/btn:scale-105 transition-transform duration-300">
-                    Enroll Now
-                    <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                      <Sparkles className="w-5 h-5 text-white/90" />
-                    </motion.div>
-                  </span>
-                  
-                  {/* Button sweeping light beam */}
-                  <motion.div 
-                    animate={{ left: ["-100%", "200%"] }} 
-                    transition={{ duration: 2.5, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.5 }} 
-                    className="absolute top-0 bottom-0 w-1/3 z-0 bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[45deg]" 
-                  />
-                </Button>
-              </motion.div>
-            </Link>
+            <motion.div style={{ transform: "translateZ(70px)" }} className="w-full flex justify-center">
+              <LuxuryButton href="/demo" gold={isFeatured} className="w-full">
+                Enroll Now
+                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+                  <Sparkles className="w-5 h-5" />
+                </motion.div>
+              </LuxuryButton>
+            </motion.div>
           </CardFooter>
         </div>
       </motion.div>
